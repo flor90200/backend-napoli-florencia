@@ -1,61 +1,93 @@
+import { promises as fs} from "fs"
+
+
+
 class productManager {
   
     constructor (){
-        this.products= []
-        this.events = []
+        this.patch = "./productos.txt";
+        this.products = []
 
     }
+
 static id = 0
 
-addProduct(title, Descripción, price, image, code, stock) {
 
-    for (let i = 0; i < this.products.length; i++) {
-        if (this.products[i].code === code) {
-            console.log (`El codigo ${code} esta repetido `);
-            break;
-        }
-    }
+addProduct = async ( title, description, price, imagen, code, stock) => {
+   
+   productManager.id++;
+    let newProduct = {
+        title,
+        description,
+        price,
+        imagen,
+        code,
+        stock,
+        id: productManager.id
+    };
 
-    const newProduct ={
-        title, Descripción, price, image, code, stock, 
-    }
-if(!Object.values(newProduct).includes(undefined)){
-       productManager.id++
-this.products.push({
-    ...newProduct,
-     id:productManager.id,
-});    
-}else{
-    console.log('Todos los campos son requeridos')
-}
-}
+    this.products.push(newProduct)
 
-getProduct(){
-    return this.products;
-}
-existe (id){
-    return this.products.find((producto) => producto.id === id)
+    await fs.writeFile(this.patch, JSON.stringify(this.products));
+};
+
+readProducts = async () => {
+    let respuesta = await fs.readFile(this.patch, "utf-8")
+    return JSON.parse(respuesta)
 }
 
-getProductById(id){
-    !this.existe(id) ?  console.log('Not Found') : console.log(this.existe(id));
-    }
+getProducts = async () => {
+    let respuesta2 = await this.readProducts()
+
+return console.log(respuesta2)
 }
 
+getProductsById = async (id) => {
+let respuesta3 = await this.readProducts()
+if(!respuesta3.find(product => product.id === id)){
+    console.log("Producto no encontrado")
+} else {
+    console.log(respuesta3.find(product => product.id === id))
+}
+};
 
-const productos = new productManager;
-console.log(productos.getProduct());
-productos.addProduct('pestañas', 'description', 3500, 'imgagen', 'abdc', '5');
-productos.addProduct('pestañas', 'description2', 4200, 'imgagen', 'abd', '10');
+deleteProductsById = async (id) => {
 
-//segunda llamada
-console.log(productos.getProduct());
+    let respuesta3 = await this.readProducts();
+    let productFilter = respuesta3.filter(products => products.id != id)
+    await fs.writeFile(this.patch, JSON.stringify(productFilter));
+    console.log("Producto eliminado")
+};
 
-//validacion de code repetido
-productos.addProduct('pestañas', 'description2', 4200, 'imgagen', 'abd4', '10');
+updateProducts = async ({ id, ...producto}) => {
+    await this.deleteProductsById(id);
+    let productOld = await this.readProducts();
+    console.log(productOld);
+    let productsModif = [{ ...producto, id }, ...productOld];
+    await fs.writeFile(this.patch, JSON.stringify(productsModif));
+};
 
-//busqueda de producto por id 
-(productos.getProductById(1))
+}
 
-//busqueda por id no encontrado 
-productos.getProductById(4);
+const productos = new productManager();
+//productos.addProduct("Clasicas", "descripcion", 3500, "img", "hola", 20)
+//productos.addProduct("Vol Bajo", "descripcion1", 3800, "img1", "hola1", 21)
+//productos.addProduct("Vol Medio", "descripcion2", 4200, "img2", "hola2", 18)
+//productos.addProduct("Vol Ruso", "descripcion3", 5000, "img3", "hola3", 12)
+//productos.addProduct("Mega Volumen", "descripcion4", 6000, "img4", "hola4", 4)
+
+//productos.getProducts()
+
+//productos.getProductsById(3)
+
+//productos.deleteProductsById(2)
+
+productos.updateProducts({
+    title: "Vol Medio",
+    description: "descripcion2",
+    price: 4500,
+    imagen: "imagen2",
+    code:"hola2",
+    stock: 18, 
+    id: 3,
+});
