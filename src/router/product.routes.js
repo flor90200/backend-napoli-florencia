@@ -1,33 +1,34 @@
 import { Router } from "express";
-import productManager from "../controllers/productManager.js";
-const ProductRouter = Router()
-const product = new productManager();
+import ProductManager from "../controllers/ProductManager.js";
 
+
+const ProductRouter =  Router();
+const product = new ProductManager();
 
 ProductRouter.get("/", async (req, res) => {
-    res.send(await product.getproducts());
-})
-
+    res.send(await product.getProducts());
+});
 ProductRouter.get("/:id", async (req, res) => {
     let id = req.params.id;
-    res.send(await product.getproductsById(id));
-})
-ProductRouter.post("/", async (req, res)=>{
-      let newProduct = req.body;
-      res.send(await product.addProducts(newProduct)); 
+    res.send(await product.getProductsById(id));
 });
 
-ProductRouter.delete("/:id", async (req, res)=>{
+ProductRouter.post("/", async (req, res)=> {
+   let  newProduct = req.body;
+   res.send(await product.addProducts(newProduct));
+});
+
+ProductRouter.put("/:id", async (req, res)=> {
     let id = req.params.id;
-    res.send(await product.deleteProducts(id));
-})
-
-ProductRouter.put("/:id", async (req, res)=>{
-    let id  = req.params.id;
-    let UpdateProducts = req.body;
-    res.send(await product.UpdateProducts(id, UpdateProducts));
+    let updateProduct = req.body;
+    res.send(await product.updateProducts(id, updateProduct));
 
 });
 
+ProductRouter.delete("/:id", async (req, res)=> {
+    let  id = req.params.id;
+    res.send(await product.deleteProducts(id));
+ });
 
-export default ProductRouter;
+
+ export default ProductRouter
